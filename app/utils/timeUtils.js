@@ -22,11 +22,15 @@ const monthArray = [
   "Desember"
 ];
 
-export const timeToFerryLeaves = ferryTimeString => {
+export const timeToFerryLeaves = (ferryTimeString, dayoffset = 0) => {
   const [hours, minutes] = ferryTimeString.replace("*", "").split(":");
   const ferryTime = new Date();
   ferryTime.setHours(parseInt(hours));
   ferryTime.setMinutes(parseInt(minutes));
+  if (dayoffset > 0) {
+    ferryTime.setDate(ferryTime.getDate() + dayoffset);
+  }
+
   const now = new Date();
   const minutesToFerryLeaves =
     Math.floor(ferryTime / 1000 / 60) - Math.floor(now / 1000 / 60);
@@ -36,18 +40,22 @@ export const timeToFerryLeaves = ferryTimeString => {
     60}m`;
 };
 
-const getTimeSlot = () => {
+const getTimeSlot = (offset = 0) => {
   const now = new Date();
 
-  if (now.getDay() === 7) {
+  if (now.getDay() + offset === 7) {
     return "sunday";
   }
 
-  if (now.getDay() === 6) {
+  if (now.getDay() + offset === 6) {
     return "saturday";
   }
 
-  return "man-fri";
+  if (now.getDay() + offset === 5) {
+    return "fri";
+  }
+
+  return "man-thu";
 };
 
 export const getFutureFerries = ferryTimes => {
@@ -63,6 +71,10 @@ export const getFutureFerries = ferryTimes => {
   });
 };
 
+export const getFerriesForTomorrow = ferryTimes => {
+  return ferryTimes[getTimeSlot(1)];
+};
+
 export const getTodayString = () => {
   const today = new Date();
   const todayDate = today.getDate();
@@ -70,5 +82,5 @@ export const getTodayString = () => {
   const todayMonth = today.getMonth();
   return `${dayArray[todayDay - 1]} ${todayDate}. ${monthArray[
     todayMonth - 1
-  ]}`;
+  ].toLowerCase()}`;
 };

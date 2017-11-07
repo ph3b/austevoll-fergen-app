@@ -9,7 +9,7 @@ export default () => (
       alignItems: "center",
       height: 90,
       color: "white",
-      backgroundColor: "#DE6CFF",
+      backgroundColor: "#2349E1",
       flexDirection: "column"
     }}
   >

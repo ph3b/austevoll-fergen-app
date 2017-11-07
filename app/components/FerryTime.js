@@ -1,7 +1,7 @@
 import React from "react";
 import { timeToFerryLeaves } from "../utils/timeUtils";
 
-export default ({ ferry }) => {
+export default ({ ferry, isNextDay }) => {
   const isSpecialFerry = ferry.includes("*");
   const formattedFerry = isSpecialFerry ? ferry.replace("*", "") : ferry;
   return (
@@ -21,14 +21,16 @@ export default ({ ferry }) => {
                 borderRadius: 5,
                 backgroundColor: "black",
                 position: "absolute",
-                top: 3,
-                right: -10
+                top: 0,
+                right: -11
               }}
             />
           )}
         </span>
       </div>
-      <div className="col-xs-6">{timeToFerryLeaves(ferry)}</div>
+      <div className="col-xs-6">
+        {timeToFerryLeaves(ferry, isNextDay ? 1 : 0)}
+      </div>
     </div>
   );
 };

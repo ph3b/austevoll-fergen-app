@@ -2,12 +2,13 @@ import React from "react";
 import getsy from "getsy";
 
 import FerryTimes from "../ferrytimes.json";
+import FerryList from "../components/FerryList";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
 import PortMenu from "../components/PortMenu";
 import FerryTime from "../components/FerryTime";
 import WarningLabel from "../components/WarningLabel";
-import { getFutureFerries } from "../utils/timeUtils";
+import { getFutureFerries, getFerriesForTomorrow } from "../utils/timeUtils";
 
 class Index extends React.PureComponent {
   constructor(props) {
@@ -38,12 +39,15 @@ class Index extends React.PureComponent {
     const [nextFerry, ...remainingFerries] = getFutureFerries(
       ferryTimesForSelectedPort
     );
-
+    const ferriesForTomorrow = getFerriesForTomorrow(ferryTimesForSelectedPort);
     return (
       <Layout>
         <Header />
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <div className="container-fluid" style={{ marginTop: 20 }}>
+          <div
+            className="container-fluid"
+            style={{ marginTop: 20, width: "100%", maxWidth: "320px" }}
+          >
             <PortMenu setPort={this.setPort} activePort={selectedPort} />
 
             <div style={{ marginTop: 30 }}>
@@ -61,16 +65,34 @@ class Index extends React.PureComponent {
               }}
             />
 
-            <div>
-              {remainingFerries.map(ferry => (
-                <div style={{ marginBottom: 5 }}>
-                  <FerryTime ferry={ferry} key={ferry} />
+            <FerryList ferries={remainingFerries} />
+
+            {new Date().getHours() >= 18 && (
+              <div style={{ marginTop: 20 }}>
+                <div style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}>
+                  I morgen
                 </div>
-              ))}
+                <FerryList ferries={ferriesForTomorrow} limit={2} isNextDay />
+              </div>
+            )}
+
+            <div style={{ marginTop: 40 }}>
+              <WarningLabel />
             </div>
 
-            <div style={{ marginTop: 10 }}>
-              <WarningLabel />
+            <div style={{ marginTop: 20 }}>
+              <div
+                style={{
+                  height: 8,
+                  width: 8,
+                  borderRadius: "50%",
+                  backgroundColor: "black",
+                  display: "inline-block"
+                }}
+              />
+              <span style={{ marginLeft: 3, fontSize: 12, fontWeight: 500 }}>
+                ferge 2
+              </span>
             </div>
           </div>
         </div>
