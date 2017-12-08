@@ -25,7 +25,6 @@ class FerryList extends React.Component {
     } else if (limit !== undefined) {
       maxIndexToInclude = limit;
     }
-
     return (
       <div style={style}>
         {ferries

@@ -1,5 +1,6 @@
 import React from "react";
-import fetch from "node-fetch";
+import axios from "axios";
+const port = parseInt(process.env.PORT, 10) || 3000;
 
 class WarningLabel extends React.Component {
   constructor(props) {
@@ -18,14 +19,9 @@ class WarningLabel extends React.Component {
   }
 
   async getAnomolies() {
-    const result = await fetch("https://austevoll-api.now.sh/status", {
-      method: "GET"
-    });
-
-    const json = await result.json();
-
-    if (json.anomolies) {
-      this.setState(json);
+    const { data } = await axios.get("/status");
+    if (data.anomolies) {
+      this.setState(data.anomolies);
     }
   }
 

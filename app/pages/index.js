@@ -54,7 +54,10 @@ class Index extends React.PureComponent {
               <div style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}>
                 Neste
               </div>
-              <FerryTime ferry={nextFerry} />
+              <FerryTime
+                ferry={nextFerry || ferriesForTomorrow[0]}
+                isNextDay={!nextFerry}
+              />
             </div>
 
             <div
