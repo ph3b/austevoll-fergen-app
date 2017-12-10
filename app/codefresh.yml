@@ -1,9 +1,9 @@
 version: '1.0'
 steps:
-  build_image:
+  BuildingDockerImage:
+    title: Building Docker Image
     type: build
-    description: Building the image...
-    working_directory: ./app
-    dockerfile: ./app/Dockerfile
-    image-name: ph3b/austevoll
-    tag: ${{CF_REVISION}} # ${{CF_BRANCH}}
+    image_name: ph3b/austevoll
+    working_directory: ./app/
+    dockerfile: Dockerfile
+    tag: '${{CF_SHORT_REVISION}}'
