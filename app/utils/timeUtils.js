@@ -1,11 +1,11 @@
 const dayArray = [
+  "Søndag",
   "Mandag",
   "Tirsdag",
   "Onsdag",
   "Torsdag",
   "Fredag",
-  "Lørdag",
-  "Søndag"
+  "Lørdag"
 ];
 
 const monthArray = [
@@ -80,7 +80,7 @@ export const getTodayString = () => {
   const todayDate = today.getDate();
   const todayDay = today.getDay();
   const todayMonth = today.getMonth();
-  return `${dayArray[todayDay - 1]} ${todayDate}. ${monthArray[
+  return `${dayArray[todayDay]} ${todayDate}. ${monthArray[
     todayMonth - 1
   ].toLowerCase()}`;
 };
