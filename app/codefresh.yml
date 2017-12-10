@@ -3,5 +3,7 @@ steps:
   build_image:
     type: build
     description: Building the image...
-    image-name: myuser/myservice
+    working_directory: ./app
+    dockerfile: ./app/Dockerfile
+    image-name: ph3b/austevoll
     tag: ${{CF_REVISION}} # ${{CF_BRANCH}}
