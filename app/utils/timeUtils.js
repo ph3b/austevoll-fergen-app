@@ -61,15 +61,30 @@ const getTimeSlot = (offset = 0) => {
 
 export const getFutureFerries = ferryTimes => {
   const ferryTimesForToday = ferryTimes[getTimeSlot()];
-  return ferryTimesForToday.filter(ferry => {
-    const ferryTimeString = ferry.replace("*", "");
-    const [hour, minutes] = ferryTimeString.split(":");
-    const ferryTime = new Date();
-    ferryTime.setHours(parseInt(hour));
-    ferryTime.setMinutes(parseInt(minutes));
-    const now = new Date();
-    return ferryTime > now;
-  });
+  return ferryTimesForToday
+    .filter(ferry => {
+      const ferryTimeString = ferry.replace("*", "");
+      const [hour, minutes] = ferryTimeString.split(":");
+      const ferryTime = new Date();
+      ferryTime.setHours(parseInt(hour));
+      ferryTime.setMinutes(parseInt(minutes));
+      const now = new Date();
+      return ferryTime > now;
+    })
+    .filter(ferry => {
+      const isSpesialFerry = ferry.includes("!");
+      if (!isSpesialFerry) return true;
+      const today = new Date();
+      const startDateForRange = new Date();
+      startDateForRange.setDate(1);
+      startDateForRange.setMonth(3);
+      const endDateForRange = new Date();
+      endDateForRange.setMonth(9);
+      endDateForRange.setDate(31);
+      return (
+        isSpesialFerry && today < endDateForRange && today > startDateForRange
+      );
+    });
 };
 
 export const getFerriesForTomorrow = ferryTimes => {

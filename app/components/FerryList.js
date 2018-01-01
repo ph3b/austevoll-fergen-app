@@ -11,7 +11,6 @@ class FerryList extends React.Component {
   }
 
   toggleShowAll() {
-    console.log("hello");
     this.setState({ showAll: !this.state.showAll });
   }
 

@@ -2,7 +2,7 @@ import React from "react";
 import { timeToFerryLeaves } from "../utils/timeUtils";
 
 export default ({ ferry, isNextDay }) => {
-  const isSpecialFerry = ferry.includes("*");
+  const isSpecialFerry = ferry.includes("*") || ferry.includes("!");
   const formattedFerry = isSpecialFerry ? ferry.replace("*", "") : ferry;
   return (
     <div

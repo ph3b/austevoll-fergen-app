@@ -79,9 +79,9 @@ class Index extends React.PureComponent {
               </div>
             )}
 
-            <div style={{ marginTop: 40 }}>
+            {/* <div style={{ marginTop: 40 }}>
               <WarningLabel />
-            </div>
+            </div> */}
 
             <div style={{ marginTop: 20 }}>
               <div
