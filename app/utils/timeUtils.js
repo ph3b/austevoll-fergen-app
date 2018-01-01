@@ -18,6 +18,7 @@ const monthArray = [
   "Juli",
   "August",
   "September",
+  "Oktober",
   "November",
   "Desember"
 ];
@@ -81,6 +82,6 @@ export const getTodayString = () => {
   const todayDay = today.getDay();
   const todayMonth = today.getMonth();
   return `${dayArray[todayDay]} ${todayDate}. ${monthArray[
-    todayMonth - 1
+    todayMonth
   ].toLowerCase()}`;
 };
