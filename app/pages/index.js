@@ -20,7 +20,7 @@ class Index extends React.PureComponent {
   componentDidMount() {
     this.interval = setInterval(() => {
       this.forceUpdate();
-    }, 1000 * 10);
+    }, 1001 * 10);
   }
 
   componentWillUnmount() {
