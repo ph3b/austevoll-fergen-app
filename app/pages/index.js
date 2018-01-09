@@ -1,6 +1,4 @@
 import React from "react";
-import getsy from "getsy";
-
 import FerryTimes from "../ferrytimes.json";
 import FerryList from "../components/FerryList";
 import Layout from "../components/Layout";
