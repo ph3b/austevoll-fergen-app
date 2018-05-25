@@ -23,7 +23,6 @@ class WarningLabel extends React.Component {
     if (data.anomolies) {
       this.setState({ anomolies: true, events: data.status.events });
     }
-    // this.setState(data.anomolies);
   }
 
   componentWillUnmount() {
