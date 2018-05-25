@@ -105,9 +105,9 @@ class Index extends React.PureComponent {
               <WarningLabel />
             </div>
 
-            <div style={{ marginTop: 30 }}>
+            <div style={{ marginTop: 20 }}>
               <div style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}>
-                Neste
+                Neste ferge
               </div>
               <FerryTime
                 ferry={nextFerry || ferriesForTomorrow[0]}

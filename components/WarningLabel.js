@@ -31,16 +31,19 @@ class WarningLabel extends React.Component {
 
   render() {
     const { anomolies, events } = this.state;
-    if (!anomolies) return null;
+    if (!anomolies || events.length === 0) return null;
 
     return (
       <div>
+        <div style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}>
+          Varsler
+        </div>
         {events.map(event => (
           <div
             key={event.created}
             style={{
               backgroundColor: "#FFE89D",
-              padding: 15,
+              padding: 10,
               position: "relative",
               marginBottom: 10
             }}
@@ -51,19 +54,8 @@ class WarningLabel extends React.Component {
                 .filter((_, i) => i > 0)
                 .join(":")}
             </div>
-            <div style={{ marginTop: 15, fontSize: 12, fontWeight: 500 }}>
+            <div style={{ marginTop: 5, fontSize: 12, fontWeight: 500 }}>
               {event.created}
-            </div>
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                right: 8,
-                fontSize: 30,
-                opacity: 0.5
-              }}
-            >
-              !
             </div>
           </div>
         ))}
