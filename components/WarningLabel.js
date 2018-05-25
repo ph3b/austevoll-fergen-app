@@ -7,7 +7,7 @@ class WarningLabel extends React.Component {
     super(props);
     this.state = {
       anomolies: false,
-      status: null
+      events: []
     };
   }
 
@@ -21,8 +21,9 @@ class WarningLabel extends React.Component {
   async getAnomolies() {
     const { data } = await axios.get("/status");
     if (data.anomolies) {
-      this.setState(data.anomolies);
+      this.setState({ anomolies: true, events: data.status.events });
     }
+    // this.setState(data.anomolies);
   }
 
   componentWillUnmount() {
@@ -30,34 +31,43 @@ class WarningLabel extends React.Component {
   }
 
   render() {
-    const { anomolies, status } = this.state;
+    const { anomolies, events } = this.state;
     if (!anomolies) return null;
 
     return (
-      <div
-        style={{
-          backgroundColor: "#FFE89D",
-          padding: 15,
-          position: "relative"
-        }}
-      >
-        <div style={{ fontSize: 18, fontWeight: 300 }}>
-          {status.description}
-        </div>
-        <div style={{ marginTop: 15, fontSize: 14, fontWeight: 500 }}>
-          Publisert {status.date}
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            right: 8,
-            fontSize: 30,
-            opacity: 0.5
-          }}
-        >
-          !
-        </div>
+      <div>
+        {events.map(event => (
+          <div
+            key={event.created}
+            style={{
+              backgroundColor: "#FFE89D",
+              padding: 15,
+              position: "relative",
+              marginBottom: 10
+            }}
+          >
+            <div style={{ fontSize: 14, fontWeight: 300 }}>
+              {event.message
+                .split(":")
+                .filter((_, i) => i > 0)
+                .join(":")}
+            </div>
+            <div style={{ marginTop: 15, fontSize: 12, fontWeight: 500 }}>
+              {event.created}
+            </div>
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                right: 8,
+                fontSize: 30,
+                opacity: 0.5
+              }}
+            >
+              !
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

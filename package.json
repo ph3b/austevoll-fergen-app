@@ -9,7 +9,10 @@
     "start": "NODE_ENV=production node server.js"
   },
   "now": {
-    "alias": "austevoll"
+    "alias": "austevoll.iden.cloud"
+  },
+  "engines": {
+    "node": "9.x"
   },
   "dependencies": {
     "axios": "^0.17.1",
@@ -17,15 +20,15 @@
     "express": "^4.16.2",
     "flexboxgrid": "^6.3.1",
     "getsy": "^0.9.2",
-    "next": "^4.1.4",
+    "next": "^6.0.3",
     "node-cache": "^4.1.1",
     "node-fetch": "^1.7.3",
     "node-sass": "^4.6.0",
     "nodemon": "^1.12.5",
     "postcss-loader": "^2.0.8",
     "raw-loader": "^0.5.1",
-    "react": "^16.0.0",
-    "react-dom": "^16.0.0",
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0",
     "sass-loader": "^6.0.6",
     "scrape-it": "^4.1.0"
   }

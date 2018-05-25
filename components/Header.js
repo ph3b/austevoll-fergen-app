@@ -13,7 +13,7 @@ export default () => (
       flexDirection: "column"
     }}
   >
-    <div style={{ fontSize: 25, fontWeight: 200 }}>Austevoll</div>
+    <div style={{ fontSize: 25, fontWeight: 600 }}>Austevollfergen</div>
     <div style={{ fontSize: 18, fontWeight: 200 }}>{getTodayString()}</div>
   </div>
 );

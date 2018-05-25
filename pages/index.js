@@ -1,26 +1,70 @@
 import React from "react";
-import FerryTimes from "../ferrytimes.json";
 import FerryList from "../components/FerryList";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
 import PortMenu from "../components/PortMenu";
 import FerryTime from "../components/FerryTime";
 import WarningLabel from "../components/WarningLabel";
-import { getFutureFerries, getFerriesForTomorrow } from "../utils/timeUtils";
+import axios from "axios";
+
+const dateToString = date => {
+  return `${date.getDate() < 10 ? "0" + date.getDate() : date.getDate()}.${
+    date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1
+  }.${date.getFullYear()}`;
+};
+
+const getFerriTimesFor = async (port, ctx = {}) => {
+  const URL = ctx.req
+    ? `http://${ctx.req.headers.host}/times/${port}`
+    : `/times/${port}`;
+
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const todayPromise = axios.get(`${URL}?date=${dateToString(today)}`);
+  const tomorrowPromise = axios.get(`${URL}?date=${dateToString(tomorrow)}`);
+
+  const [todayData, tomorrowData] = await Promise.all([
+    todayPromise,
+    tomorrowPromise
+  ]);
+
+  return {
+    departures: todayData.data.departures,
+    tomorrowDepartures: tomorrowData.data.departures
+  };
+};
 
 class Index extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      selectedPort: "krokeide"
+      selectedPort: "krokeide",
+      departures: props.departures,
+      departuresTomorrow: props.tomorrowDepartures
     };
     this.setPort = this.setPort.bind(this);
   }
 
-  componentDidMount() {
+  static async getInitialProps(ctx) {
+    return await getFerriTimesFor("krokeide", ctx);
+  }
+
+  async componentDidUpdate(prevProps, prevState) {
+    if (prevState.selectedPort !== this.state.selectedPort) {
+      const { departures, tomorrowDepartures } = await getFerriTimesFor(
+        this.state.selectedPort
+      );
+
+      this.setState({ departures, departuresTomorrow: tomorrowDepartures });
+    }
+  }
+
+  async componentDidMount() {
     this.interval = setInterval(() => {
       this.forceUpdate();
-    }, 1001 * 10);
+    }, 1000 * 30);
   }
 
   componentWillUnmount() {
@@ -32,12 +76,21 @@ class Index extends React.PureComponent {
   }
 
   render() {
-    const { selectedPort } = this.state;
-    const ferryTimesForSelectedPort = FerryTimes[`from_${selectedPort}`];
-    const [nextFerry, ...remainingFerries] = getFutureFerries(
-      ferryTimesForSelectedPort
-    );
-    const ferriesForTomorrow = getFerriesForTomorrow(ferryTimesForSelectedPort);
+    const { selectedPort, departures, departuresTomorrow } = this.state;
+    const allFerriesForToday = departures.map(d => d.time);
+    const ferriesForTomorrow = departuresTomorrow.map(d => d.time);
+    const futureFerries = allFerriesForToday.filter(ferryTimeString => {
+      const now = new Date();
+      const ferryTime = new Date();
+      ferryTime.setHours(parseInt(ferryTimeString.split(":")[0]));
+      ferryTime.setMinutes(parseInt(ferryTimeString.split(":")[1]));
+      ferryTime.setSeconds(0);
+      ferryTime.setMilliseconds(0);
+      return ferryTime >= now;
+    });
+
+    const [nextFerry, ...remainingFerries] = futureFerries;
+
     return (
       <Layout>
         <Header />
@@ -47,6 +100,10 @@ class Index extends React.PureComponent {
             style={{ marginTop: 20, width: "100%", maxWidth: "320px" }}
           >
             <PortMenu setPort={this.setPort} activePort={selectedPort} />
+
+            <div style={{ marginTop: 40 }}>
+              <WarningLabel />
+            </div>
 
             <div style={{ marginTop: 30 }}>
               <div style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}>
@@ -76,25 +133,6 @@ class Index extends React.PureComponent {
                 <FerryList ferries={ferriesForTomorrow} limit={2} isNextDay />
               </div>
             )}
-
-            {/* <div style={{ marginTop: 40 }}>
-              <WarningLabel />
-            </div> */}
-
-            <div style={{ marginTop: 20 }}>
-              <div
-                style={{
-                  height: 8,
-                  width: 8,
-                  borderRadius: "50%",
-                  backgroundColor: "black",
-                  display: "inline-block"
-                }}
-              />
-              <span style={{ marginLeft: 3, fontSize: 12, fontWeight: 500 }}>
-                ferge 2
-              </span>
-            </div>
           </div>
         </div>
       </Layout>
