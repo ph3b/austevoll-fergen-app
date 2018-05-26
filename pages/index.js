@@ -40,25 +40,17 @@ class Index extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      selectedPort: "krokeide",
-      departures: props.departures,
-      departuresTomorrow: props.tomorrowDepartures
+      selectedPort: "krokeide"
     };
     this.setPort = this.setPort.bind(this);
   }
 
   static async getInitialProps(ctx) {
-    return await getFerriTimesFor("krokeide", ctx);
-  }
-
-  async componentDidUpdate(prevProps, prevState) {
-    if (prevState.selectedPort !== this.state.selectedPort) {
-      const { departures, tomorrowDepartures } = await getFerriTimesFor(
-        this.state.selectedPort
-      );
-
-      this.setState({ departures, departuresTomorrow: tomorrowDepartures });
-    }
+    const [krokeideFerries, hufthamarFerries] = await Promise.all([
+      getFerriTimesFor("krokeide", ctx),
+      getFerriTimesFor("hufthamar", ctx)
+    ]);
+    return { krokeideFerries, hufthamarFerries };
   }
 
   async componentDidMount() {
@@ -76,20 +68,36 @@ class Index extends React.PureComponent {
   }
 
   render() {
-    const { selectedPort, departures, departuresTomorrow } = this.state;
+    const { selectedPort } = this.state;
+
+    const { hufthamarFerries, krokeideFerries } = this.props;
+    const departures =
+      selectedPort === "krokeide"
+        ? krokeideFerries.departures
+        : hufthamarFerries.departures;
+    const departuresTomorrow =
+      selectedPort === "krokeide"
+        ? krokeideFerries.tomorrowDepartures
+        : hufthamarFerries.tomorrowDepartures;
+
     const allFerriesForToday = departures.map(d => d.time);
     const ferriesForTomorrow = departuresTomorrow.map(d => d.time);
     const futureFerries = allFerriesForToday.filter(ferryTimeString => {
       const now = new Date();
       const ferryTime = new Date();
-      ferryTime.setHours(parseInt(ferryTimeString.split(":")[0]));
-      ferryTime.setMinutes(parseInt(ferryTimeString.split(":")[1]));
+      const [ferryHour, ferryMinutes] = ferryTimeString.split(":");
+      ferryTime.setHours(parseInt(ferryHour));
+      ferryTime.setMinutes(parseInt(ferryMinutes));
       ferryTime.setSeconds(0);
       ferryTime.setMilliseconds(0);
       return ferryTime >= now;
     });
 
     const [nextFerry, ...remainingFerries] = futureFerries;
+    const [
+      firstFerryForTomorrow,
+      ...remainingFerriesForTomorrow
+    ] = ferriesForTomorrow;
 
     return (
       <Layout>
@@ -110,7 +118,7 @@ class Index extends React.PureComponent {
                 Neste ferge
               </div>
               <FerryTime
-                ferry={nextFerry || ferriesForTomorrow[0]}
+                ferry={nextFerry || firstFerryForTomorrow}
                 isNextDay={!nextFerry}
               />
             </div>
@@ -130,7 +138,11 @@ class Index extends React.PureComponent {
                 <div style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}>
                   I morgen
                 </div>
-                <FerryList ferries={ferriesForTomorrow} limit={2} isNextDay />
+                <FerryList
+                  ferries={remainingFerriesForTomorrow}
+                  limit={2}
+                  isNextDay
+                />
               </div>
             )}
           </div>
