@@ -50,13 +50,8 @@ async function getFerryTimesFrom(port, date) {
     return ferryTimeCache.get(cacheKey);
   }
 
-  if (port === "krokeide") {
-    departure = KROKEIDE_PORT_CODE;
-    destination = HUFTHAMAR_PORT_CODE;
-  } else {
-    departure = HUFTHAMAR_PORT_CODE;
-    destination = KROKEIDE_PORT_CODE;
-  }
+  departure = port === "krokeide" ? KROKEIDE_PORT_CODE : HUFTHAMAR_PORT_CODE;
+  destination = port === "krokeide" ? HUFTHAMAR_PORT_CODE : KROKEIDE_PORT_CODE;
 
   const URL = `https://www.fjord1.no/Ruteoversikt/Hordaland/Hufthamar-Krokeide?from=${departure}&to=${destination}&date=${date}`;
 
