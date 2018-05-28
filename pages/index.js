@@ -6,6 +6,7 @@ import PortMenu from "../components/PortMenu";
 import FerryTime from "../components/FerryTime";
 import WarningLabel from "../components/WarningLabel";
 import axios from "axios";
+import { withRouter } from "next/router";
 
 const dateToString = date => {
   return `${date.getDate() < 10 ? "0" + date.getDate() : date.getDate()}.${
@@ -13,8 +14,8 @@ const dateToString = date => {
   }.${date.getFullYear()}`;
 };
 
-const getFerriTimesFor = async (port, ctx = {}) => {
-  const URL = ctx.req
+const getFerryTimesFor = async (port, ctx = {}) => {
+  const FERRY_TIME_URL = ctx.req
     ? `http://${ctx.req.headers.host}/times/${port}`
     : `/times/${port}`;
 
@@ -22,8 +23,12 @@ const getFerriTimesFor = async (port, ctx = {}) => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const todayPromise = axios.get(`${URL}?date=${dateToString(today)}`);
-  const tomorrowPromise = axios.get(`${URL}?date=${dateToString(tomorrow)}`);
+  const todayPromise = axios.get(
+    `${FERRY_TIME_URL}?date=${dateToString(today)}`
+  );
+  const tomorrowPromise = axios.get(
+    `${FERRY_TIME_URL}?date=${dateToString(tomorrow)}`
+  );
 
   const [todayData, tomorrowData] = await Promise.all([
     todayPromise,
@@ -37,26 +42,26 @@ const getFerriTimesFor = async (port, ctx = {}) => {
 };
 
 class Index extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedPort: "krokeide"
-    };
-    this.setPort = this.setPort.bind(this);
-  }
-
   static async getInitialProps(ctx) {
-    const [krokeideFerries, hufthamarFerries] = await Promise.all([
-      getFerriTimesFor("krokeide", ctx),
-      getFerriTimesFor("hufthamar", ctx)
+    const WARNING_URL = ctx.req
+      ? `http://${ctx.req.headers.host}/status`
+      : "/status";
+
+    const warningPromise = axios.get(WARNING_URL);
+
+    const [krokeideFerries, hufthamarFerries, warningData] = await Promise.all([
+      getFerryTimesFor("krokeide", ctx),
+      getFerryTimesFor("hufthamar", ctx),
+      warningPromise
     ]);
-    return { krokeideFerries, hufthamarFerries };
+
+    return { krokeideFerries, hufthamarFerries, warning: warningData.data };
   }
 
   async componentDidMount() {
     this.interval = setInterval(() => {
       this.forceUpdate();
-    }, 1000 * 30);
+    }, 1000 * 10);
   }
 
   componentWillUnmount() {
@@ -68,13 +73,18 @@ class Index extends React.PureComponent {
   }
 
   render() {
-    const { selectedPort } = this.state;
+    const { hufthamarFerries, krokeideFerries, warning, router } = this.props;
 
-    const { hufthamarFerries, krokeideFerries } = this.props;
+    const selectedPort =
+      !router.query.port || router.query.port === "krokeide"
+        ? "krokeide"
+        : "hufthamar";
+
     const departures =
       selectedPort === "krokeide"
         ? krokeideFerries.departures
         : hufthamarFerries.departures;
+
     const departuresTomorrow =
       selectedPort === "krokeide"
         ? krokeideFerries.tomorrowDepartures
@@ -82,6 +92,7 @@ class Index extends React.PureComponent {
 
     const allFerriesForToday = departures.map(d => d.time);
     const ferriesForTomorrow = departuresTomorrow.map(d => d.time);
+
     const futureFerries = allFerriesForToday.filter(ferryTimeString => {
       const now = new Date();
       const ferryTime = new Date();
@@ -94,6 +105,7 @@ class Index extends React.PureComponent {
     });
 
     const [nextFerry, ...remainingFerries] = futureFerries;
+
     const [
       firstFerryForTomorrow,
       ...remainingFerriesForTomorrow
@@ -107,10 +119,15 @@ class Index extends React.PureComponent {
             className="container-fluid"
             style={{ marginTop: 20, width: "100%", maxWidth: "320px" }}
           >
-            <PortMenu setPort={this.setPort} activePort={selectedPort} />
+            <PortMenu
+              setPort={port => {
+                this.props.router.push(`/?port=${port}`, `/${port}`);
+              }}
+              activePort={selectedPort}
+            />
 
             <div style={{ marginTop: 40 }}>
-              <WarningLabel />
+              <WarningLabel warning={warning} />
             </div>
 
             <div style={{ marginTop: 20 }}>
@@ -152,4 +169,4 @@ class Index extends React.PureComponent {
   }
 }
 
-export default Index;
+export default withRouter(Index);

@@ -3,42 +3,18 @@ import axios from "axios";
 const port = parseInt(process.env.PORT, 10) || 3000;
 
 class WarningLabel extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      anomolies: false,
-      events: []
-    };
-  }
-
-  componentDidMount() {
-    this.getAnomolies();
-    this.interval = setInterval(() => {
-      this.getAnomolies();
-    }, 1000 * 30);
-  }
-
-  async getAnomolies() {
-    const { data } = await axios.get("/status");
-    if (data.anomolies) {
-      this.setState({ anomolies: true, events: data.status.events });
-    }
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
-
   render() {
-    const { anomolies, events } = this.state;
-    if (!anomolies || events.length === 0) return null;
+    const {
+      warning: { anomolies, status }
+    } = this.props;
+    if (!anomolies || status.events.length === 0) return null;
 
     return (
       <div>
         <div style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}>
           Varsler
         </div>
-        {events.map(event => (
+        {status.events.map(event => (
           <div
             key={event.created}
             style={{

@@ -18,6 +18,12 @@ app.prepare().then(() => {
     }
   });
 
+  server.get("/:port", (req, res) => {
+    const actualPage = "/";
+    const queryParams = { port: req.params.port };
+    app.render(req, res, actualPage, queryParams);
+  });
+
   server.get("/times/:port", async (req, res) => {
     const { port } = req.params;
     const { date } = req.query;
