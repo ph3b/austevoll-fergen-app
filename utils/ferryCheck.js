@@ -5,11 +5,9 @@ const ferryTimeCache = new NodeCache({ stdTTL: 60 * 2 });
 
 async function getFerryWarnings() {
   if (cache.get("ferryWarning") !== undefined) {
-    console.log("Ferry warning hit");
     return cache.get("ferryWarning");
   }
 
-  console.log("Ferry warning miss");
   const result = await ScrapeIt(
     "https://www.fjord1.no/Ruteoversikt/Hordaland/Hufthamar-Krokeide",
     {
@@ -46,7 +44,6 @@ async function getFerryTimesFrom(port, date) {
   const cacheKey = `${port}-${date}`;
 
   if (ferryTimeCache.get(cacheKey) !== undefined) {
-    console.log("Ferrytime hit");
     return ferryTimeCache.get(cacheKey);
   }
 
@@ -66,7 +63,6 @@ async function getFerryTimesFrom(port, date) {
       }
     }
   });
-  console.log("Ferrytime miss");
   ferryTimeCache.set(cacheKey, result.departures);
   return result.departures;
 }

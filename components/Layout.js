@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import stylesheet from "../css/index.scss";
+import "../css/index.css";
 
 export default ({ children }) => (
   <div>
@@ -12,7 +12,6 @@ export default ({ children }) => (
       href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500"
       rel="stylesheet"
     />
-    <style dangerouslySetInnerHTML={{ __html: stylesheet }} />
     {children}
   </div>
 );
