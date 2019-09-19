@@ -9,27 +9,10 @@ const { getFerryWarnings, getFerryTimesFrom } = require("../utils/ferryCheck");
 app.prepare().then(() => {
   const server = express();
 
-  server.get("/status", async (req, res) => {
-    const status = await getFerryWarnings();
-    if (status === null) {
-      return res.send({ anomolies: false });
-    } else {
-      return res.send({ anomolies: true, status });
-    }
-  });
-
   server.get("/:port", (req, res) => {
     const actualPage = "/";
     const queryParams = { port: req.params.port };
     app.render(req, res, actualPage, queryParams);
-  });
-
-  server.get("/times/:port", async (req, res) => {
-    const { port } = req.params;
-    const { date } = req.query;
-
-    const results = await getFerryTimesFrom(port, date);
-    return res.json({ departures: results });
   });
 
   server.get("*", (req, res) => {

@@ -33,6 +33,7 @@ export const timeToFerryLeaves = (ferryTimeString, dayoffset = 0) => {
   }
 
   const now = new Date();
+
   const minutesToFerryLeaves =
     Math.floor(ferryTime / 1000 / 60) - Math.floor(now / 1000 / 60);
   if (minutesToFerryLeaves < 60) return minutesToFerryLeaves + " min";
