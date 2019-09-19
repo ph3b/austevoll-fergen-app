@@ -7,11 +7,11 @@ import FerryTime from "../components/FerryTime";
 import WarningLabel from "../components/WarningLabel";
 import axios from "axios";
 import { withRouter } from "next/router";
+import { format } from "date-fns";
+import nb from "date-fns/locale/nb";
 
 const dateToString = date => {
-  return `${date.getDate() < 10 ? "0" + date.getDate() : date.getDate()}.${
-    date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1
-  }.${date.getFullYear()}`;
+  return format(date, "dd.mm.yyyy", { locale: nb });
 };
 
 const getFerryTimesFor = async (port, ctx = {}) => {
