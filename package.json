@@ -8,17 +8,16 @@
     "build": "next build",
     "start": "NODE_ENV=production node server/index.js"
   },
-  "now": {
-    "alias": "austevoll.iden.cloud"
-  },
   "dependencies": {
     "@zeit/next-css": "^1.0.1",
     "axios": "^0.19.0",
     "date-fns": "^2.2.1",
+    "date-fns-tz": "^1.0.7",
     "flexboxgrid": "^6.3.1",
     "next": "^9.0.6",
     "node-cache": "^4.2.1",
     "react": "^16.9.0",
+    "react-content-loader": "^4.2.2",
     "react-dom": "^16.9.0",
     "scrape-it": "^5.2.0"
   }

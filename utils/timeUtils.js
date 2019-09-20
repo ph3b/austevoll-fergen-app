@@ -1,3 +1,6 @@
+import { parse, differenceInMinutes } from "date-fns";
+import nb from "date-fns/locale/nb";
+
 const dayArray = [
   "Søndag",
   "Mandag",
@@ -24,10 +27,10 @@ const monthArray = [
 ];
 
 export const timeToFerryLeaves = (ferryTimeString, dayoffset = 0) => {
-  const [hours, minutes] = ferryTimeString.replace("*", "").split(":");
-  const ferryTime = new Date();
-  ferryTime.setHours(parseInt(hours));
-  ferryTime.setMinutes(parseInt(minutes));
+  const ferryTime = parse(ferryTimeString, "HH:mm", new Date(), {
+    locale: nb
+  });
+
   if (dayoffset > 0) {
     ferryTime.setDate(ferryTime.getDate() + dayoffset);
   }

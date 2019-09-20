@@ -1,3 +1,15 @@
 {
-  "alias": "austevoll.iden.cloud"
+  "alias": "austevoll.iden.cloud",
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1",
+      "headers": { "cache-control": "s-maxage=0" }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1",
+      "headers": { "cache-control": "s-maxage=1800" }
+    }
+  ]
 }

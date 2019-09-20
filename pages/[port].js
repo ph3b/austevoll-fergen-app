@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import FerryList from "../components/FerryList";
 import Layout from "../components/Layout";
 import Header from "../components/Header";
@@ -7,17 +7,16 @@ import FerryTime from "../components/FerryTime";
 import WarningLabel from "../components/WarningLabel";
 import axios from "axios";
 import { withRouter } from "next/router";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import nb from "date-fns/locale/nb";
+import { zonedTimeToUtc } from "date-fns-tz";
 
 const dateToString = date => {
-  return format(date, "dd.mm.yyyy", { locale: nb });
+  return format(date, "dd.MM.yyyy", { locale: nb });
 };
 
-const getFerryTimesFor = async (port, ctx = {}) => {
-  const FERRY_TIME_URL = ctx.req
-    ? `http://${ctx.req.headers.host}/api/times/${port}`
-    : `/api/times/${port}`;
+const getFerryTimesFor = async port => {
+  const FERRY_TIME_URL = `/api/times/${port}`;
 
   const today = new Date();
   const tomorrow = new Date();
@@ -42,23 +41,41 @@ const getFerryTimesFor = async (port, ctx = {}) => {
 };
 
 class Index extends React.PureComponent {
-  static async getInitialProps(ctx) {
-    const WARNING_URL = ctx.req
-      ? `http://${ctx.req.headers.host}/api/status`
-      : "/api/status";
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true,
+      warning: null,
+      hufthamarFerries: {
+        tomorrowDepartures: [],
+        departures: []
+      },
+      krokeideFerries: { tomorrowDepartures: [], departures: [] }
+    };
+  }
 
-    const warningPromise = axios.get(WARNING_URL);
-
-    const [krokeideFerries, hufthamarFerries, warningData] = await Promise.all([
-      getFerryTimesFor("krokeide", ctx),
-      getFerryTimesFor("hufthamar", ctx),
-      warningPromise
-    ]);
-
-    return { krokeideFerries, hufthamarFerries, warning: warningData.data };
+  static getInitialProps(req) {
+    return {
+      selectedPort: req.query.port
+    };
   }
 
   async componentDidMount() {
+    const warningPromise = axios.get("/api/status");
+
+    const [krokeideFerries, hufthamarFerries, warningData] = await Promise.all([
+      getFerryTimesFor("krokeide"),
+      getFerryTimesFor("hufthamar"),
+      warningPromise
+    ]);
+
+    this.setState({
+      krokeideFerries,
+      hufthamarFerries,
+      warning: warningData.data,
+      isLoading: false
+    });
+
     this.interval = setInterval(() => {
       this.forceUpdate();
     }, 1000 * 10);
@@ -73,12 +90,16 @@ class Index extends React.PureComponent {
   }
 
   render() {
-    const { hufthamarFerries, krokeideFerries, warning, router } = this.props;
+    const { router } = this.props;
 
-    const selectedPort =
-      !router.query.port || router.query.port === "krokeide"
-        ? "krokeide"
-        : "hufthamar";
+    const {
+      hufthamarFerries,
+      krokeideFerries,
+      warning,
+      isLoading
+    } = this.state;
+
+    const selectedPort = this.props.selectedPort || "krokeide";
 
     const departures =
       selectedPort === "krokeide"
@@ -94,13 +115,11 @@ class Index extends React.PureComponent {
     const ferriesForTomorrow = departuresTomorrow.map(d => d.time);
 
     const futureFerries = allFerriesForToday.filter(ferryTimeString => {
-      const now = new Date();
-      const ferryTime = new Date();
-      const [ferryHour, ferryMinutes] = ferryTimeString.split(":");
-      ferryTime.setHours(parseInt(ferryHour));
-      ferryTime.setMinutes(parseInt(ferryMinutes));
-      ferryTime.setSeconds(0);
-      ferryTime.setMilliseconds(0);
+      const now = zonedTimeToUtc(new Date(), "Europe/Oslo");
+      const ferryTime = parse(ferryTimeString, "HH:mm", new Date(), {
+        locale: nb
+      });
+
       return ferryTime >= now;
     });
 
@@ -127,39 +146,49 @@ class Index extends React.PureComponent {
             />
 
             <div style={{ marginTop: 40 }}>
-              <WarningLabel warning={warning} />
+              {warning && <WarningLabel warning={warning} />}
             </div>
 
-            <div style={{ marginTop: 20 }}>
-              <div style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}>
-                Neste ferge
-              </div>
-              <FerryTime
-                ferry={nextFerry || firstFerryForTomorrow}
-                isNextDay={!nextFerry}
-              />
-            </div>
-
-            <div
-              style={{
-                borderBottom: "1px solid #DBDBDB",
-                marginTop: 10,
-                marginBottom: 10
-              }}
-            />
-
-            <FerryList ferries={remainingFerries} />
-
-            {new Date().getHours() >= 18 && (
-              <div style={{ marginTop: 20 }}>
-                <div style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}>
-                  I morgen
+            {true && (
+              <div>
+                <div style={{ marginTop: 20 }}>
+                  <div
+                    style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}
+                  >
+                    Neste ferge
+                  </div>
+                  <FerryTime
+                    isLoading={isLoading}
+                    ferry={nextFerry || firstFerryForTomorrow}
+                    isNextDay={!nextFerry}
+                  />
                 </div>
-                <FerryList
-                  ferries={remainingFerriesForTomorrow}
-                  limit={2}
-                  isNextDay
+
+                <div
+                  style={{
+                    borderBottom: "1px solid #DBDBDB",
+                    marginTop: 10,
+                    marginBottom: 10
+                  }}
                 />
+
+                <FerryList isLoading={isLoading} ferries={remainingFerries} />
+
+                {new Date().getHours() >= 18 && (
+                  <div style={{ marginTop: 20 }}>
+                    <div
+                      style={{ fontSize: 25, fontWeight: 500, marginBottom: 5 }}
+                    >
+                      I morgen
+                    </div>
+                    <FerryList
+                      isLoading={isLoading}
+                      ferries={remainingFerriesForTomorrow}
+                      limit={2}
+                      isNextDay
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
