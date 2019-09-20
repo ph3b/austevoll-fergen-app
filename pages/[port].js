@@ -111,12 +111,12 @@ class Index extends React.PureComponent {
         ? krokeideFerries.tomorrowDepartures
         : hufthamarFerries.tomorrowDepartures;
 
-    const allFerriesForToday = departures.map(d => d.time);
-    const ferriesForTomorrow = departuresTomorrow.map(d => d.time);
+    const allFerriesForToday = departures;
+    const ferriesForTomorrow = departuresTomorrow;
 
-    const futureFerries = allFerriesForToday.filter(ferryTimeString => {
+    const futureFerries = allFerriesForToday.filter(({ time }) => {
       const now = zonedTimeToUtc(new Date(), "Europe/Oslo");
-      const ferryTime = parse(ferryTimeString, "HH:mm", new Date(), {
+      const ferryTime = parse(time, "HH:mm", new Date(), {
         locale: nb
       });
 

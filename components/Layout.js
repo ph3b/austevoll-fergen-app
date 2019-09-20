@@ -7,11 +7,12 @@ export default ({ children }) => (
     <Head>
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>Austevoll</title>
+      <link
+        href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500"
+        rel="stylesheet"
+      />
     </Head>
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500"
-      rel="stylesheet"
-    />
+
     {children}
   </div>
 );

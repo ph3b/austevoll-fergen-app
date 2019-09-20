@@ -3,12 +3,6 @@ import { timeToFerryLeaves } from "../utils/timeUtils";
 import ContentLoader from "react-content-loader";
 
 export default ({ ferry, isNextDay, isLoading }) => {
-  const isSpecialFerry = ferry
-    ? ferry.includes("*") || ferry.includes("!")
-    : false;
-  const formattedFerry =
-    ferry && isSpecialFerry ? ferry.replace("*", "") : ferry;
-
   return (
     <div
       style={{ fontSize: 20, fontWeight: 300, marginBottom: isLoading ? 0 : 5 }}
@@ -29,10 +23,21 @@ export default ({ ferry, isNextDay, isLoading }) => {
       {!isLoading && (
         <div className="row" key={ferry}>
           <div className="col-xs-6">
-            <span style={{ position: "relative" }}>{formattedFerry}</span>
+            <span style={{ position: "relative" }}>{ferry.time}</span>
           </div>
-          <div className="col-xs-6">
-            {timeToFerryLeaves(ferry, isNextDay ? 1 : 0)}
+          <div className="col-xs-4">
+            {timeToFerryLeaves(ferry.time, isNextDay ? 1 : 0)}
+          </div>
+
+          <div
+            className="col-xs-2"
+            style={{
+              fontWeight: 200,
+              display: "flex",
+              justifyContent: "flex-end"
+            }}
+          >
+            {ferry.route.split(" ")[0]}
           </div>
         </div>
       )}

@@ -1,13 +1,5 @@
 const ScrapeIt = require("scrape-it");
-const NodeCache = require("node-cache");
-const cache = new NodeCache({ stdTTL: 60 * 2, checkperiod: 10 });
-const ferryTimeCache = new NodeCache({ stdTTL: 60 * 2 });
-
 async function getFerryWarnings() {
-  if (cache.get("ferryWarning") !== undefined) {
-    return cache.get("ferryWarning");
-  }
-
   const { data } = await ScrapeIt(
     "https://www.fjord1.no/Ruteoversikt/Hordaland/Hufthamar-Krokeide",
     {
@@ -24,13 +16,6 @@ async function getFerryWarnings() {
       }
     }
   );
-
-  const { events } = data;
-  if (events.length === 0) {
-    cache.set("ferryWarning", null);
-    return null;
-  }
-  cache.set("ferryWarning", data);
   return data;
 }
 
@@ -41,12 +26,6 @@ async function getFerryTimesFrom(port, date) {
   let departure = null;
   let destination = null;
 
-  const cacheKey = `${port}-${date}`;
-
-  if (ferryTimeCache.get(cacheKey) !== undefined) {
-    return ferryTimeCache.get(cacheKey);
-  }
-
   departure = port === "krokeide" ? KROKEIDE_PORT_CODE : HUFTHAMAR_PORT_CODE;
   destination = port === "krokeide" ? HUFTHAMAR_PORT_CODE : KROKEIDE_PORT_CODE;
 
@@ -56,6 +35,9 @@ async function getFerryTimesFrom(port, date) {
     departures: {
       listItem: ".component-list__items__departure-item",
       data: {
+        route: {
+          selector: ".f1-alert"
+        },
         time: {
           selector: ".stop-content > time",
           convert: raw => raw.split("\n")[0]
@@ -63,7 +45,7 @@ async function getFerryTimesFrom(port, date) {
       }
     }
   });
-  ferryTimeCache.set(cacheKey, data.departures);
+
   return data.departures;
 }
 

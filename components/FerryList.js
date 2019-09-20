@@ -25,6 +25,7 @@ class FerryList extends React.Component {
     } else if (limit !== undefined) {
       maxIndexToInclude = limit;
     }
+
     return (
       <div style={style}>
         {isLoading && (
@@ -37,7 +38,7 @@ class FerryList extends React.Component {
               primaryColor="#f3f3f3"
               secondaryColor="#ecebeb"
             >
-              {Array(15)
+              {Array(7)
                 .fill(null)
                 .map((_, index) => {
                   return (
@@ -63,11 +64,9 @@ class FerryList extends React.Component {
             {ferries
               .filter((_, i) => i <= maxIndexToInclude)
               .map(ferry => (
-                <FerryTime
-                  key={ferry + isNextDay}
-                  ferry={ferry}
-                  isNextDay={isNextDay}
-                />
+                <div key={ferry.time + isNextDay} style={{ marginBottom: 10 }}>
+                  <FerryTime ferry={ferry} isNextDay={isNextDay} />
+                </div>
               ))}
             {limit !== undefined && (
               <div
