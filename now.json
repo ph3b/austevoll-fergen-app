@@ -9,7 +9,7 @@
     {
       "src": "/(.*)",
       "dest": "/$1",
-      "headers": { "cache-control": "s-maxage=1800" }
+      "headers": { "cache-control": "s-maxage=31536000" }
     }
   ]
 }
